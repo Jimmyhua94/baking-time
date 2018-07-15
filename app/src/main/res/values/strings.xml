@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Baking Time</string>
+    <string name="appwidget_text">Recipe not selected</string>
+    <string name="appwidget_description_text">Baking Time Recipe</string>
+    <string name="configure">Configure</string>
+    <string name="add_widget">Add widget</string>
+    <string name="next">Next</string>
+    <string name="prev">Prev</string>
+    <string name="done">Done</string>
+</resources>
