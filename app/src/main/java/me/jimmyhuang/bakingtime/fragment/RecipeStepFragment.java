@@ -33,6 +33,9 @@ public class RecipeStepFragment extends Fragment {
     public static final String STEP = "step";
     public static final String STEPS = "steps";
 
+    public static final String PLAY_POSITION = "play_position";
+    public static final String PLAY_READY_STATE = "play_ready_state";
+
     private List<Step> mSteps;
     private int mStep;
 
@@ -42,6 +45,8 @@ public class RecipeStepFragment extends Fragment {
     private TextView mTextView;
     private Button mPrevButton;
     private Button mNextButton;
+    private long mPlayPosition = 0;
+    private boolean mPlayReadyState = true;
 
     public RecipeStepFragment() {}
 
@@ -55,14 +60,16 @@ public class RecipeStepFragment extends Fragment {
         mTextView = rootView.findViewById(R.id.recipe_step_tv);
 
         if (savedInstanceState != null) {
+            mPlayPosition = savedInstanceState.getLong(PLAY_POSITION);
+            mPlayReadyState = savedInstanceState.getBoolean(PLAY_READY_STATE);
             mStep = savedInstanceState.getInt(STEP);
             mSteps = savedInstanceState.getParcelableArrayList(STEPS);
         }
 
-        if (!getResources().getBoolean(R.bool.isTablet)) {
-            mPrevButton = rootView.findViewById(R.id.recipe_step_prev);
-            mNextButton = rootView.findViewById(R.id.recipe_step_next);
+        mPrevButton = rootView.findViewById(R.id.recipe_step_prev);
+        mNextButton = rootView.findViewById(R.id.recipe_step_next);
 
+        if (mPrevButton != null && mNextButton != null) {
             mPrevButton.setOnClickListener(new PrevClickListener());
             mNextButton.setOnClickListener(new NextClickListener());
         }
@@ -75,10 +82,10 @@ public class RecipeStepFragment extends Fragment {
     private void initializeView() {
         releasePlayer();
 
-        if (!getResources().getBoolean(R.bool.isTablet)) {
+        if (mPrevButton != null && mNextButton != null) {
             if (mStep == 0) {
                 mPrevButton.setVisibility(View.INVISIBLE);
-            } else if (mStep == mSteps.size()-1) {
+            } else if (mStep == mSteps.size() - 1) {
                 mNextButton.setText(getResources().getText(R.string.done));
                 mNextButton.setOnClickListener(new DoneClickListener());
             } else {
@@ -122,7 +129,8 @@ public class RecipeStepFragment extends Fragment {
                     new DefaultDataSourceFactory(mContext, userAgent),
                     new DefaultExtractorsFactory(), null, null);
             mExoPlayer.prepare(mediaSource);
-            mExoPlayer.setPlayWhenReady(true);
+            mExoPlayer.seekTo(mPlayPosition);
+            mExoPlayer.setPlayWhenReady(mPlayReadyState);
         }
     }
 
@@ -135,13 +143,40 @@ public class RecipeStepFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        initializeView();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        releasePlayer();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mExoPlayer != null) {
+            mPlayPosition = mExoPlayer.getCurrentPosition();
+            mPlayReadyState = mExoPlayer.getPlayWhenReady();
+        }
+        if (Util.SDK_INT <= 23) {
+            releasePlayer();
+        }
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         releasePlayer();
     }
 
+
     @Override
     public void onSaveInstanceState(Bundle currentState) {
+        currentState.putLong(PLAY_POSITION, mPlayPosition);
+        currentState.putBoolean(PLAY_READY_STATE, mPlayReadyState);
         currentState.putInt(STEP, mStep);
         currentState.putParcelableArrayList(STEPS,(ArrayList<Step>) mSteps);
 

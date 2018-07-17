@@ -5,27 +5,28 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.widget.RemoteViews;
 
 import me.jimmyhuang.bakingtime.adapter.RecipeListAdapter;
 import me.jimmyhuang.bakingtime.model.Recipe;
+import me.jimmyhuang.bakingtime.utility.RecipeWidgetService;
 
 public class RecipeWidgetProvider extends AppWidgetProvider {
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
-
-        CharSequence widgetText = MainActivity.loadTitlePref(context, appWidgetId);
-        Recipe recipe = MainActivity.loadObjectPref(context, appWidgetId);
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.recipe_widget_provider);
-        views.setTextViewText(R.id.appwidget_text, widgetText);
+        Intent listViewIntent = new Intent(context, RecipeWidgetService.class);
+        listViewIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        listViewIntent.setData(Uri.parse(listViewIntent.toUri(Intent.URI_INTENT_SCHEME)));
+        views.setRemoteAdapter(R.id.appwidget_lv, listViewIntent);
 
         Intent intent = new Intent(context, DetailActivity.class);
-        intent.putExtra(RecipeListAdapter.RECIPE_INTENT_EXTRA, recipe);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        views.setOnClickPendingIntent(R.id.appwidget_container, pendingIntent);
+        intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, appWidgetId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setPendingIntentTemplate(R.id.appwidget_lv, pendingIntent);
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);

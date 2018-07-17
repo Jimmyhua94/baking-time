@@ -1,4 +1,4 @@
-package me.jimmyhuang.bakingtime.IdlingResource;
+package me.jimmyhuang.bakingtime.idling_resource;
 
 import android.support.annotation.Nullable;
 import android.support.test.espresso.IdlingResource;

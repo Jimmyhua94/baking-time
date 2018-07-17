@@ -20,7 +20,7 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.List;
 
-import me.jimmyhuang.bakingtime.IdlingResource.SimpleIdlingResource;
+import me.jimmyhuang.bakingtime.idling_resource.SimpleIdlingResource;
 import me.jimmyhuang.bakingtime.fragment.RecipeListFragment;
 import me.jimmyhuang.bakingtime.model.Recipe;
 import me.jimmyhuang.bakingtime.utility.Network;
@@ -90,13 +90,13 @@ public class MainActivity extends AppCompatActivity {
     };
 
     // Write the prefix to the SharedPreferences object for this widget
-    static void saveTitlePref(Context context, int appWidgetId, String text) {
+    public static void saveTitlePref(Context context, int appWidgetId, String text) {
         SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
         prefs.putString(PREF_PREFIX_KEY + appWidgetId, text);
         prefs.apply();
     }
     // https://stackoverflow.com/questions/5418160/store-and-retrieve-a-class-object-in-shared-preference/34625667
-    static void saveObjectPref(Context context, int appWidgetId, Recipe recipe) {
+    public static void saveObjectPref(Context context, int appWidgetId, Recipe recipe) {
         SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
         Gson gson = new Gson();
         String json = gson.toJson(recipe);
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Read the prefix from the SharedPreferences object for this widget.
     // If there is no preference saved, get the default from a resource
-    static String loadTitlePref(Context context, int appWidgetId) {
+    public static String loadTitlePref(Context context, int appWidgetId) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
         String titleValue = prefs.getString(PREF_PREFIX_KEY + appWidgetId, null);
         if (titleValue != null) {
@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
             return context.getString(R.string.appwidget_text);
         }
     }
-    static Recipe loadObjectPref(Context context, int appWidgetId) {
+    public static Recipe loadObjectPref(Context context, int appWidgetId) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
         String objectValue = prefs.getString(PREF_PREFIX_KEY + PREF_OBJECT_KEY + appWidgetId, null);
         Gson gson = new Gson();
@@ -123,12 +123,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    static void deleteTitlePref(Context context, int appWidgetId) {
+    public static void deleteTitlePref(Context context, int appWidgetId) {
         SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
         prefs.remove(PREF_PREFIX_KEY + appWidgetId);
         prefs.apply();
     }
-    static void deleteObjectPref(Context context, int appWidgetId) {
+    public static void deleteObjectPref(Context context, int appWidgetId) {
         SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
         prefs.remove(PREF_PREFIX_KEY + PREF_OBJECT_KEY + appWidgetId);
         prefs.apply();
